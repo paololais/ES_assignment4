@@ -31,7 +31,11 @@
 #ifndef XC_HEADER_TEMPLATE_H
 #define	XC_HEADER_TEMPLATE_H
 
-#include <xc.h> // include processor files - each processor file is guarded.  
+#include <xc.h> // include processor files - each processor file is guarded.
+#include "timer.h"
+#define ACC_CS LATBbits.LATB3
+#define MAG_CS LATDbits.LATD6
+#define GYR_CS LATBbits.LATB4
 
 void spi_init();
 unsigned int spi_write(unsigned int data);

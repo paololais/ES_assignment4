@@ -13,15 +13,32 @@ void spi_init() {
 
     SPI1CON1bits.MSTEN = 1;    // Master mode
     SPI1CON1bits.MODE16 = 0;   // 8-bit mode
-    SPI1CON1bits.CKP = 0;      // Clock idle low
     SPI1CON1bits.CKE = 1;      // Trasmissione su transizione attivo?idle
-    SPI1CON1bits.SMP = 0;      // Input sample at middle of data output time
+    SPI1STATbits.SPIROV = 0;   // Clear overflow
 
     // Fcy = 72MHz ? F_SPI = Fcy / (Primary × Secondary)
+    //TODO: calcolare quali valori settare
     SPI1CON1bits.PPRE = 0b00;  // Primary prescaler 64:1
     SPI1CON1bits.SPRE = 0b101; // Secondary prescaler 3:1
+    
+    // Remapping configuration
+    TRISAbits.TRISA1 = 1; // RA1-RPI17 MISO
+    TRISFbits.TRISF12 = 0; // RF12-RP108 SCK
+    TRISFbits.TRISF13 = 0; // RF13-RP109 MOSI
+    
+    // configurare i 3 slave come output
+    TRISBbits.TRISB3 = 0;
+    TRISBbits.TRISB4 = 0;
+    TRISDbits.TRISD6 = 0;
+    
+    RPINR20bits.SDI1R = 0b0010001; // MISO (SDI1) - RPI17
+    RPOR12bits.RP109R = 0b000101; // MOSI (SDO1) - RF13;
+    RPOR11bits.RP108R = 0b000110; // SCK1; 
+    
+    ACC_CS = 1;
+    GYR_CS = 1;
+    MAG_CS = 1;
 
-    SPI1STATbits.SPIROV = 0;   // Clear overflow
     SPI1STATbits.SPIEN = 1;    // Abilita SPI
 }
 
@@ -36,21 +53,61 @@ unsigned int spi_write(unsigned int data){
     return data_received;
 }
 
-void spi_write_register(uint8_t reg_addr, uint8_t data) {
-    LATBbits.LATB2 = 0; // CS LOW (attiva il chip)
+unsigned int spi_write(unsigned int read_addr){
+    unsigned int value;
+    unsigned int trash;
     
-    int dummy = spi_write(reg_addr & 0x7F);
-    dummy = spi_write(data);
+    MAG_CS = 0;
+    while (SPI1STATbits.SPITBF == 1);
+    SPI1BUF = read_addr | 0x80;
+    while (SPI1STATbits.SPIRBF == 0);
+    trash = SPI1BUF;
+    while (SPI1STATbits.SPITBF == 1);
+    SPI1BUF = 0x00;
+    while (SPI1STATbits.SPIRBF == 0);
+    value = SPI1BUF;
+    MAG_CS = 1;
     
-    /*
-    SPI1BUF = reg_addr & 0x7F; // MSB = 0 per write
-    while (!SPI1STATbits.SPIRBF); 
-    volatile uint8_t dummy = SPI1BUF; // svuota il buffer
+    if (SPI1STATbits.SPIROV == 0){
+        SPI1STATbits.SPIROV = 1;
+    }
+    
+    return value;
+}
 
-    SPI1BUF = data;
-    while (!SPI1STATbits.SPIRBF); 
-    dummy = SPI1BUF;
-    */
-     
-    LATBbits.LATB2 = 1; // CS HIGH (disattiva il chip)
+void mag_enable(){
+    unsigned int addr;
+    unsigned int trash;
+    
+    // sleep mode
+    MAG_CS = 0;
+    addr = 0x004B;
+    while (SPI1STATbits.SPITBF == 1);
+    SPI1BUF = addr & 0x7F;
+    while (SPI1STATbits.SPIRBF == 0);
+    trash = SPI1BUF;
+    while (SPI1STATbits.SPITBF == 1);
+    SPI1BUF = 0x01;
+    while (SPI1STATbits.SPIRBF == 0);
+    trash = SPI1BUF;
+    MAG_CS = 1;
+    
+    tmr_wait_ms(TIMER1, 4);
+    
+    // active mode
+    MAG_CS = 0;
+    addr = 0x004C;
+    while (SPI1STATbits.SPITBF == 1);
+    SPI1BUF = addr & 0x7F;
+    while (SPI1STATbits.SPIRBF == 0);
+    trash = SPI1BUF;
+    while (SPI1STATbits.SPITBF == 1);
+    SPI1BUF = 0x00;
+    while (SPI1STATbits.SPIRBF == 0);
+    trash = SPI1BUF;
+    MAG_CS = 1;
+    
+    if (SPI1STATbits.SPIROV == 0){
+        SPI1STATbits.SPIROV = 1;
+    }
 }

@@ -28,14 +28,15 @@
 
 // This is a guard condition so that contents of this file are not included
 // more than once.  
-#ifndef XC_HEADER_TEMPLATE_H
-#define	XC_HEADER_TEMPLATE_H
+#ifndef UART_H
+#define	UART_H
 
 #include <xc.h> // include processor files - each processor file is guarded.  
 
 #define BAUDRATE 9600UL
 #define FCY 72000000UL  
 #define BRGVAL ((FCY / (16 * BAUDRATE)) - 1)
+#define BUFFER_SIZE 32 // da calcolare in base a quanti dati ricevo/trasmetto
 
 void UART1_Init();
 // Scrive un carattere sulla UART1
@@ -51,12 +52,6 @@ char UART1_ReadChar(void);
 void UART1_Echo(void);
 
 //buffer
-
-#define BAUDRATE 9600UL
-#define FCY 72000000UL  
-#define BRGVAL ((FCY / (16 * BAUDRATE)) - 1)
-#define BUFFER_SIZE 32 // da calcolare in base a quanti dati ricevo/trasmetto
-
 typedef struct {
     char buffer[BUFFER_SIZE]; // Array che contiene i dati
     int head; // Indice di scrittura
@@ -80,5 +75,5 @@ extern "C" {
 }
 #endif /* __cplusplus */
 
-#endif	/* XC_HEADER_TEMPLATE_H */
+#endif	/* UART_H */
 

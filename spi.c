@@ -42,17 +42,6 @@ void spi_init() {
     SPI1STATbits.SPIEN = 1;    // Abilita SPI
 }
 
-
-unsigned int spi_write(unsigned int data){
-    while(SPI1STATbits.SPITBF == 1); // wait until the tx buffer is not full
-    SPI1BUF = data; // transmit
-    
-    while(SPI1STATbits.SPIRBF == 0); // wait until data has arrived
-    unsigned int data_received = SPI1BUF;
-    
-    return data_received;
-}
-
 unsigned int spi_write(unsigned int read_addr){
     unsigned int value;
     unsigned int trash;
@@ -75,6 +64,41 @@ unsigned int spi_write(unsigned int read_addr){
     return value;
 }
 
+void spi_write_2_reg(unsigned int read_addr, unsigned int* value1, unsigned int* value2){
+    unsigned int trash;
+
+    MAG_CS = 0;
+
+    while (SPI1STATbits.SPITBF == 1);
+    SPI1BUF = read_addr | 0xC0;
+
+    while (SPI1STATbits.SPIRBF == 0);
+    trash = SPI1BUF; 
+
+    while (SPI1STATbits.SPITBF == 1);
+    SPI1BUF = 0x00;
+
+    while (SPI1STATbits.SPIRBF == 0);
+    *value1 = SPI1BUF;
+
+    while (SPI1STATbits.SPITBF == 1);
+    SPI1BUF = 0x00;
+
+    while (SPI1STATbits.SPIRBF == 0);
+    *value2 = SPI1BUF;
+
+    MAG_CS = 1;
+
+    if (SPI1STATbits.SPIROV == 0){
+        SPI1STATbits.SPIROV = 1;
+    }
+}
+/*Nel main:
+ * unsigned char v1, v2;
+spi_read_double(0x42, &v1, &v2);
+// Ora v1 e v2 contengono i due byte letti
+ */
+
 void mag_enable(){
     unsigned int addr;
     unsigned int trash;
@@ -92,7 +116,7 @@ void mag_enable(){
     trash = SPI1BUF;
     MAG_CS = 1;
     
-    tmr_wait_ms(TIMER1, 4);
+    tmr_wait_ms(1, 4);
     
     // active mode
     MAG_CS = 0;

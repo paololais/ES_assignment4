@@ -27,7 +27,7 @@ typedef struct {
 
 PrescValues spi_presc(long int clock){
     PrescValues result;
-    long int Clockrate = Fcy / clock;
+    long int Clockrate = Fcy / clock; //clockrate = 180
     int i = 0;
     bool done = true;
     int primarypresc = 0;
@@ -158,7 +158,7 @@ Values spi_write_double(unsigned int read_addr){
     Values values;
     unsigned int trash;
     
-    MAG_CS = 0;
+    MAG_CS = 0; //seleziono come slave il magnometro
     while (SPI1STATbits.SPITBF == 1);
     SPI1BUF = read_addr | 0xC0;
     while (SPI1STATbits.SPIRBF == 0);

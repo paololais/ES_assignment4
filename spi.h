@@ -39,7 +39,8 @@
 
 void spi_init();
 unsigned int spi_write(unsigned int data);
-void spi_write_register(uint8_t reg_addr, uint8_t data);
+void spi_write_2_reg(unsigned int read_addr, unsigned int* value1, unsigned int* value2);
+void mag_enable();
 
 #ifdef	__cplusplus
 extern "C" {

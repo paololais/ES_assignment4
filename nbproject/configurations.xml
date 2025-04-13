@@ -21,9 +21,9 @@
                    displayName="Source Files"
                    projectFiles="true">
       <itemPath>main.c</itemPath>
-      <itemPath>main_prova.c</itemPath>
       <itemPath>spi.c</itemPath>
       <itemPath>timer.c</itemPath>
+      <itemPath>uart.c</itemPath>
     </logicalFolder>
   </logicalFolder>
   <sourceRootList>

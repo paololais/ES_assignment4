@@ -64,7 +64,7 @@ unsigned int spi_write(unsigned int read_addr){
     return value;
 }
 
-void spi_write_2_reg(unsigned int read_addr, unsigned int* value1, unsigned int* value2){
+void spi_write_2_reg(unsigned int read_addr, uint8_t* value1, uint8_t* value2){
     unsigned int trash;
 
     MAG_CS = 0;

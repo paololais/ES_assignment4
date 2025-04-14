@@ -51,8 +51,8 @@ int main(void) {
     cb_init(&cb);
     
     unsigned int read_addr = 0x42;
-    uint8_t int value1;
-    uint8_t int value2;
+    uint8_t value1;
+    uint8_t value2;
     unsigned int value;
     //unsigned int chip_id = spi_write(read_addr);
     
@@ -67,8 +67,10 @@ int main(void) {
         value2 = value2 << 8;
         value = value2 | value1;
         value = value >> 3;
+        
+        UART1_WriteChar((char)value);
 
-       tmr_wait_period(TIMER2);
+        tmr_wait_period(TIMER2);
     }
     return 0;
 }

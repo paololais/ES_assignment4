@@ -19,7 +19,7 @@ int main(void) {
     spi_init();
     
     //Make the magnetometer switch to Sleep mode; then make it go to active mode; 
-    void mag_enable();
+    mag_enable();
     
     CircularBuffer cb;
     cb_init(&cb);

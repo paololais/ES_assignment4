@@ -55,6 +55,8 @@ int main(void) {
     uint8_t value2;
     unsigned int value;
     //unsigned int chip_id = spi_write(read_addr);
+    char buffer1[32];
+    char buffer2[16];
     
     UART1_Init(); // Inizializza UART1
     //UART1_WriteChar((char)chip_id);
@@ -68,7 +70,13 @@ int main(void) {
         value = value2 | value1;
         value = value >> 3;
         
-        UART1_WriteChar((char)value);
+        sprintf(buffer1, "$MAGX ");
+        sprintf(buffer2, "%u\n", value);
+        strcat(buffer1, buffer2);
+        l = strlen(buffer1);
+        for (i = 0; i < l; i++){
+            UART1_WriteChar(buffer1[i]);
+        }
 
         tmr_wait_period(TIMER2);
     }

@@ -16,7 +16,7 @@ void spi_init() {
     SPI1CON1bits.CKE = 1;      // Trasmissione su transizione attivo?idle
     SPI1STATbits.SPIROV = 0;   // Clear overflow
 
-    // Fcy = 72MHz ? F_SPI = Fcy / (Primary × Secondary)
+    // Fcy = 72MHz ? F_SPI = Fcy / (Primary ï¿½ Secondary)
     //TODO: calcolare quali valori settare
     SPI1CON1bits.PPRE = 0b00;  // Primary prescaler 64:1
     SPI1CON1bits.SPRE = 0b101; // Secondary prescaler 3:1
@@ -89,8 +89,9 @@ void spi_write_2_reg(unsigned int read_addr, uint8_t* value1, uint8_t* value2){
 
     MAG_CS = 1;
 
-    if (SPI1STATbits.SPIROV == 0){
-        SPI1STATbits.SPIROV = 1;
+    //clear overflow
+    if (SPI1STATbits.SPIROV == 1){
+        SPI1STATbits.SPIROV = 0;
     }
 }
 /*Nel main:
@@ -116,7 +117,7 @@ void mag_enable(){
     trash = SPI1BUF;
     MAG_CS = 1;
     
-    tmr_wait_ms(1, 4);
+    tmr_wait_ms(1, 4); //tmr_wait_ms(1, 4); // wait 4ms for the magnetometer to switch to sleep mode 
     
     // active mode
     MAG_CS = 0;
@@ -131,7 +132,8 @@ void mag_enable(){
     trash = SPI1BUF;
     MAG_CS = 1;
     
-    if (SPI1STATbits.SPIROV == 0){
-        SPI1STATbits.SPIROV = 1;
+    //clear overflow
+    if (SPI1STATbits.SPIROV == 1){
+        SPI1STATbits.SPIROV = 0;
     }
 }

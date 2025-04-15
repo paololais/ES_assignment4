@@ -53,31 +53,34 @@ int main(void) {
     cb_init(&cb);
     
     unsigned int read_addr = 0x42;
-    unsigned int value1;
-    unsigned int value2;
-    unsigned int value;
-    //unsigned int chip_id = spi_write(read_addr);
-    char buffer1[32];
-    char buffer2[16];
+    unsigned int lsb;
+    unsigned int msb;
+    unsigned int raw; 
+    int signed_value;
+
+    char buffer[32];
     
     UART1_Init(); // Inizializza UART1
-    //UART1_WriteChar((char)chip_id);
     
     tmr_setup_period(TIMER2, 100);
     
     while(1){
-        spi_write_2_reg(read_addr, &value1, &value2);
-        value1 = value1 & 0x00F8;
-        value2 = value2 << 8;
-        value = value2 | value1;
-        value = value >> 3;
+        spi_write_2_reg(read_addr, &lsb, &msb);
+        lsb = lsb & 0x00F8;
+        msb = msb << 8; //left shift by 8
+        raw = msb | lsb; //put together the two bytes
+        raw = raw >> 3; //right shift by 3
+        //raw = raw / 8; // alternativa più robusta
+
+        // Copia bit-a-bit in un signed 16-bit per convertire da unsigned a signed
+        // portabilità: evito comportamenti implementation-defined
+        memcpy(&signed_value, &raw, sizeof(raw));
         
-        sprintf(buffer1, "$MAGX ");
-        sprintf(buffer2, "%u\n", value);
-        strcat(buffer1, buffer2);
-        int l = strlen(buffer1);
+        sprintf(buffer, "$MAGX=%d*", signed_value);
+
+        int l = strlen(buffer);
         for (int i = 0; i < l; i++){
-            UART1_WriteChar(buffer1[i]);
+            UART1_WriteChar(buffer[i]);
         }
 
         tmr_wait_period(TIMER2);

@@ -10,6 +10,8 @@
 #include "spi.h"
 #include "timer.h"
 #include "uart.h"
+#include "stdio.h"
+#include "string.h"
 
 /* Assignment 1
 
@@ -51,8 +53,8 @@ int main(void) {
     cb_init(&cb);
     
     unsigned int read_addr = 0x42;
-    uint8_t value1;
-    uint8_t value2;
+    unsigned int value1;
+    unsigned int value2;
     unsigned int value;
     //unsigned int chip_id = spi_write(read_addr);
     char buffer1[32];
@@ -73,8 +75,8 @@ int main(void) {
         sprintf(buffer1, "$MAGX ");
         sprintf(buffer2, "%u\n", value);
         strcat(buffer1, buffer2);
-        l = strlen(buffer1);
-        for (i = 0; i < l; i++){
+        int l = strlen(buffer1);
+        for (int i = 0; i < l; i++){
             UART1_WriteChar(buffer1[i]);
         }
 

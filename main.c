@@ -69,12 +69,12 @@ int main(void) {
         lsb = lsb & 0x00F8;
         msb = msb << 8; //left shift by 8
         raw = msb | lsb; //put together the two bytes
-        raw = raw >> 3; //right shift by 3
-        //raw = raw / 8; // alternativa più robusta
-
+        //raw = raw >> 3; //right shift by 3
+        signed_value = (int) raw / 8; // alternativa più robusta
+        
         // Copia bit-a-bit in un signed 16-bit per convertire da unsigned a signed
         // portabilità: evito comportamenti implementation-defined
-        memcpy(&signed_value, &raw, sizeof(raw));
+        // memcpy(&signed_value, &raw, sizeof(raw));
         
         sprintf(buffer, "$MAGX=%d*", signed_value);
 

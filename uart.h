@@ -76,4 +76,3 @@ extern "C" {
 #endif /* __cplusplus */
 
 #endif	/* UART_H */
-
